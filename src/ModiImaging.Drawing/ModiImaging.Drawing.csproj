@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ModiImaging.Drawing</RootNamespace>
+    <Description>Disegno, stampa ed esportazione (PDF vettoriale tramite Microsoft Print to PDF, PDF da immagini, PNG) di documenti MDI, EMF, WMF, TIFF multipagina e immagini. Solo Windows, nessuna libreria esterna.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ModiImaging\ModiImaging.csproj" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

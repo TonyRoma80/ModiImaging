@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Serve il TFM con la versione di Windows per usare le API WinRT (Windows.Media.Ocr). -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ModiImaging.Ocr</RootNamespace>
+    <Description>OCR delle pagine MDI/EMF/TIFF/immagini con il motore OCR integrato in Windows 10/11 (Windows.Media.Ocr). Nessuna libreria esterna e nessun servizio online.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ModiImaging.Drawing\ModiImaging.Drawing.csproj" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

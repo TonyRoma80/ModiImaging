@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ModiImaging</RootNamespace>
+    <Description>Lettura dei file Microsoft Document Imaging (.mdi) ed estrazione del testo, senza Office e senza dipendenze. Estrae le pagine EMF, ripulisce i record proprietari MODI e restituisce il testo con le coordinate in millimetri.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

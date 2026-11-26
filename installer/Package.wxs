@@ -56,15 +56,7 @@
         <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".mdi" Value="" Type="string" />
         <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".emf" Value="" Type="string" />
         <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tif" Value="" Type="string" />
-        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tiff" Value="" Type="string" />
-
-        <!-- Registrazione tra le "App predefinite" di Windows (Impostazioni > App > App predefinite) -->
-        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationName" Value="MdiViewer" Type="string" />
-        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationDescription" Value="Visualizzatore e convertitore di file Microsoft Document Imaging (.mdi)" Type="string" />
-        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationIcon" Value="&quot;[#MdiViewerExe]&quot;,0" Type="string" />
-        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities\FileAssociations" Name=".mdi" Value="MdiViewer.mdi" Type="string" />
-        <RegistryValue Root="HKMU" Key="Software\RegisteredApplications" Name="MdiViewer" Value="Software\TonyRoma\MdiViewer\Capabilities" Type="string" />
-      </Component>
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tiff" Value="" Type="string" />      </Component>
 
       <Component Id="LicenseFile">
         <File Id="LicenseTxt" Source="$(var.RepoRoot)LICENSE" Name="LICENSE.txt" KeyPath="yes" />

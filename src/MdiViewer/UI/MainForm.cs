@@ -106,8 +106,6 @@ public sealed class MainForm : Form
         page.DropDownItems.Add(Multi(Item("&Vai alla pagina...", GoToPageDialog, Keys.Control | Keys.G)));
 
         var help = new ToolStripMenuItem("&?");
-        help.DropDownItems.Add(Item("Apri i file .mdi con &MdiViewer...", () => FileAssociation.MakeDefault(this)));
-        help.DropDownItems.Add(new ToolStripSeparator());
         help.DropDownItems.Add(Item("&Riga di comando...", ShowCommandLineHelp));
         help.DropDownItems.Add(Item("&Informazioni su MdiViewer...", ShowAbout));
 

@@ -71,8 +71,8 @@ Il visualizzatore **MdiViewer** si scarica già compilato dalla pagina
 - **`MdiViewer.exe`** portatile: un unico file da copiare ed eseguire dove si vuole, senza installazione.
 
 Se sul PC un altro programma apre già i `.mdi`, Windows non permette a nessun installer di
-sostituirlo: la scelta spetta all'utente. In MdiViewer il menu *? → Apri i file .mdi con MdiViewer*
-apre direttamente la pagina giusta delle Impostazioni.
+sostituirlo: la scelta spetta all'utente (clic destro su un file `.mdi` → *Apri con* → *MdiViewer*
+→ *Usa sempre*, oppure *Impostazioni → App → App predefinite*).
 
 Installazione senza finestre (ad esempio da script):
 `msiexec /i MdiViewer-<versione>-x64.msi /qn MSIINSTALLPERUSER=1 ALLUSERS=2` (solo per l'utente) oppure

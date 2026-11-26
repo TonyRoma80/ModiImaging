@@ -57,8 +57,15 @@ dotnet add package ModiImaging.Ocr       # OCR (Windows 10/11)
 ```
 
 Il visualizzatore **MdiViewer** si scarica già compilato dalla pagina
-[Releases](https://github.com/TonyRoma80/ModiImaging/releases): è un singolo `MdiViewer.exe`
-che non richiede installazione né .NET.
+[Releases](https://github.com/TonyRoma80/ModiImaging/releases), in due forme (nessuna richiede .NET):
+
+- **`MdiViewer-<versione>-x64.msi`** (consigliato): installa il programma in *Programmi*, aggiunge il
+  collegamento nel menu Start, associa i file `.mdi` (doppio clic) e si disinstalla da
+  *Impostazioni → App*. Le versioni nuove sostituiscono automaticamente quella installata.
+- **`MdiViewer.exe`** portatile: un unico file da copiare ed eseguire dove si vuole, senza installazione.
+
+Il programma non è firmato digitalmente: al primo avvio Windows SmartScreen può mostrare
+"Windows ha protetto il PC". Per proseguire: *Ulteriori informazioni* → *Esegui comunque*.
 
 ## Creare i pacchetti
 
@@ -171,6 +178,18 @@ dotnet publish src\MdiViewer\MdiViewer.csproj -c Release -r win-x64 --self-conta
 ```
 
 Si distribuisce solo `publish\MdiViewer.exe` (i `.pdb` e `.xml` accanto non servono).
+
+### Installer MSI
+
+```
+dotnet build installer\MdiViewer.Installer.wixproj -c Release
+```
+
+Compila MdiViewer come exe autonomo e lo impacchetta con [WiX Toolset](https://wixtoolset.org) 5
+(scaricato automaticamente da NuGet durante la compilazione) in
+`installer\bin\Release\MdiViewer-<versione>-x64.msi`, con interfaccia in italiano.
+La versione è quella di [Directory.Build.props](Directory.Build.props). L'`UpgradeCode` in
+[Package.wxs](installer/Package.wxs) non va mai cambiato: serve a Windows per riconoscere gli aggiornamenti.
 Dipendente dal framework (circa 250 KB, richiede il *.NET Desktop Runtime 8*): stesso comando con
 `--self-contained false` e senza `-p:EnableCompressionInSingleFile=true`. Per Windows su ARM: `win-arm64`.
 

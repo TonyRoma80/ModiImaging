@@ -1,0 +1,29 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <!--
+    Installer MSI di MdiViewer.
+    Compilazione:  dotnet build installer\MdiViewer.Installer.wixproj -c Release
+    Risultato:     installer\bin\x64\Release\it-IT\MdiViewer-<versione>-x64.msi
+
+    Il target PublishViewer compila prima MdiViewer come singolo exe autonomo (include .NET),
+    poi WiX lo impacchetta. WiX 5 è usato di proposito: dalla versione 6 è richiesta
+    l'accettazione della licenza OSMF.
+  -->
+
+  <PropertyGroup>
+    <OutputName>MdiViewer-$(Version)-x64</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <Cultures>it-IT</Cultures>
+    <ViewerPublishDir>$(MSBuildThisFileDirectory)obj\viewer\</ViewerPublishDir>
+    <DefineConstants>ProductVersion=$(Version);ViewerDir=$(ViewerPublishDir);RepoRoot=$(MSBuildThisFileDirectory)..\</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+  </ItemGroup>
+
+  <Target Name="PublishViewer" BeforeTargets="BeforeBuild">
+    <Exec Command="dotnet publish &quot;$(MSBuildThisFileDirectory)..\src\MdiViewer\MdiViewer.csproj&quot; -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=none -o &quot;$(ViewerPublishDir)&quot;" />
+  </Target>
+
+</Project>

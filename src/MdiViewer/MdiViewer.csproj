@@ -11,6 +11,7 @@
     <Product>MdiViewer</Product>
     <Description>Visualizzatore e convertitore di file Microsoft Document Imaging (.mdi)</Description>
     <IsPackable>false</IsPackable>
+    <ApplicationIcon>MdiViewer.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

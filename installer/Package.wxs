@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <!-- UpgradeCode: NON cambiarlo mai, serve a Windows per riconoscere gli aggiornamenti. -->
+  <Package Name="MdiViewer"
+           Manufacturer="TonyRoma"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="390D9C19-54E9-44C4-BD0E-FB3464C0F430"
+           Language="1040"
+           Codepage="1252"
+           Scope="perMachine"
+           Compressed="yes">
+
+    <SummaryInformation Description="MdiViewer - visualizzatore e convertitore di file Microsoft Document Imaging (.mdi)" />
+
+    <!-- Una nuova versione sostituisce automaticamente quella installata. -->
+    <MajorUpgrade DowngradeErrorMessage="Sul computer è già installata una versione più recente di MdiViewer." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- Icona in "Impostazioni > App" e collegamenti -->
+    <Icon Id="MdiViewer.ico" SourceFile="$(var.RepoRoot)src\MdiViewer\MdiViewer.ico" />
+    <Property Id="ARPPRODUCTICON" Value="MdiViewer.ico" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/TonyRoma80/ModiImaging" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/TonyRoma80/ModiImaging" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/TonyRoma80/ModiImaging/releases" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="MdiViewer" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="MdiViewerFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Bitness="always64">
+        <File Id="MdiViewerExe" Source="$(var.ViewerDir)MdiViewer.exe" KeyPath="yes" />
+
+        <!-- Associazione dei file .mdi: doppio clic e "Apri con" -->
+        <ProgId Id="MdiViewer.mdi" Description="Documento Microsoft Document Imaging" Icon="MdiViewerExe" IconIndex="0">
+          <Extension Id="mdi" ContentType="image/vnd.ms-modi">
+            <Verb Id="open" Command="Apri con MdiViewer" TargetFile="MdiViewerExe" Argument="&quot;%1&quot;" />
+          </Extension>
+        </ProgId>
+
+        <!-- Registrazione dell'applicazione per "Apri con" e per le impostazioni delle app predefinite -->
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe" Name="FriendlyAppName" Value="MdiViewer" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".mdi" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".emf" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tif" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tiff" Value="" Type="string" />
+        <RegistryValue Root="HKLM" Key="Software\Classes\.mdi\OpenWithProgids" Name="MdiViewer.mdi" Value="" Type="string" />
+      </Component>
+
+      <Component Id="LicenseFile">
+        <File Id="LicenseTxt" Source="$(var.RepoRoot)LICENSE" Name="LICENSE.txt" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <!-- Collegamento nel menu Start (componente separato, come richiesto dalle regole di Windows Installer) -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut">
+        <Shortcut Id="StartMenuShortcut"
+                  Name="MdiViewer"
+                  Description="Visualizzatore di file Microsoft Document Imaging (.mdi)"
+                  Target="[INSTALLFOLDER]MdiViewer.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="MdiViewer.ico" />
+        <RegistryValue Root="HKCU" Key="Software\TonyRoma\MdiViewer" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="MdiViewer" Level="1">
+      <ComponentGroupRef Id="MdiViewerFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <!-- Interfaccia standard: benvenuto, licenza, cartella di installazione, avanzamento -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <!-- Al termine: casella "Avvia MdiViewer" -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Avvia MdiViewer" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <CustomAction Id="LaunchApplication" FileRef="MdiViewerExe" ExeCommand="" Return="asyncNoWait" Impersonate="yes" />
+    <UI>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+  </Package>
+</Wix>

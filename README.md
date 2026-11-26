@@ -59,10 +59,24 @@ dotnet add package ModiImaging.Ocr       # OCR (Windows 10/11)
 Il visualizzatore **MdiViewer** si scarica già compilato dalla pagina
 [Releases](https://github.com/TonyRoma80/ModiImaging/releases), in due forme (nessuna richiede .NET):
 
-- **`MdiViewer-<versione>-x64.msi`** (consigliato): installa il programma in *Programmi*, aggiunge il
-  collegamento nel menu Start, associa i file `.mdi` (doppio clic) e si disinstalla da
-  *Impostazioni → App*. Le versioni nuove sostituiscono automaticamente quella installata.
+- **`MdiViewer-<versione>-x64.msi`** (consigliato): durante l'installazione si sceglie
+  - *solo per me* (predefinito): nessun permesso di amministratore, il programma va in
+    `%LOCALAPPDATA%\Programs\MdiViewer` ed è visibile solo all'utente che lo installa;
+  - *per tutti gli utenti*: richiede i permessi di amministratore, il programma va in
+    `C:\Program Files\MdiViewer`.
+
+  In entrambi i casi aggiunge il collegamento nel menu Start, associa i file `.mdi` (doppio clic),
+  registra MdiViewer tra le *App predefinite* di Windows e si disinstalla da *Impostazioni → App*.
+  Le versioni nuove sostituiscono automaticamente quella installata nello stesso modo.
 - **`MdiViewer.exe`** portatile: un unico file da copiare ed eseguire dove si vuole, senza installazione.
+
+Se sul PC un altro programma apre già i `.mdi`, Windows non permette a nessun installer di
+sostituirlo: la scelta spetta all'utente. In MdiViewer il menu *? → Apri i file .mdi con MdiViewer*
+apre direttamente la pagina giusta delle Impostazioni.
+
+Installazione senza finestre (ad esempio da script):
+`msiexec /i MdiViewer-<versione>-x64.msi /qn MSIINSTALLPERUSER=1 ALLUSERS=2` (solo per l'utente) oppure
+`msiexec /i MdiViewer-<versione>-x64.msi /qn ALLUSERS=1` (per tutti, da amministratore).
 
 Il programma non è firmato digitalmente: al primo avvio Windows SmartScreen può mostrare
 "Windows ha protetto il PC". Per proseguire: *Ulteriori informazioni* → *Esegui comunque*.

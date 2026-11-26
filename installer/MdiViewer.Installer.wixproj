@@ -14,6 +14,8 @@
     <OutputName>MdiViewer-$(Version)-x64</OutputName>
     <InstallerPlatform>x64</InstallerPlatform>
     <Cultures>it-IT</Cultures>
+    <!-- ICE57 è atteso in un installer "per utente o per computer": le chiavi HKMU cambiano posizione secondo la scelta. -->
+    <SuppressIces>ICE57</SuppressIces>
     <ViewerPublishDir>$(MSBuildThisFileDirectory)obj\viewer\</ViewerPublishDir>
     <DefineConstants>ProductVersion=$(Version);ViewerDir=$(ViewerPublishDir);RepoRoot=$(MSBuildThisFileDirectory)..\</DefineConstants>
   </PropertyGroup>

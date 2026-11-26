@@ -2,20 +2,27 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-  <!-- UpgradeCode: NON cambiarlo mai, serve a Windows per riconoscere gli aggiornamenti. -->
+  <!--
+    Installer "dual-purpose": l'utente sceglie se installare
+      - solo per sé  (predefinito): %LOCALAPPDATA%\Programs\MdiViewer, registro HKCU, nessun permesso di amministratore;
+      - per tutti gli utenti:       C:\Program Files\MdiViewer, registro HKLM, richiede i permessi di amministratore.
+    Le chiavi di registro usano la radice HKMU, che Windows Installer traduce in HKCU o HKLM secondo la scelta.
+
+    UpgradeCode: NON cambiarlo mai, serve a Windows per riconoscere gli aggiornamenti.
+  -->
   <Package Name="MdiViewer"
            Manufacturer="TonyRoma"
            Version="$(var.ProductVersion)"
            UpgradeCode="390D9C19-54E9-44C4-BD0E-FB3464C0F430"
            Language="1040"
            Codepage="1252"
-           Scope="perMachine"
+           Scope="perUserOrMachine"
            Compressed="yes">
 
     <SummaryInformation Description="MdiViewer - visualizzatore e convertitore di file Microsoft Document Imaging (.mdi)" />
 
-    <!-- Una nuova versione sostituisce automaticamente quella installata. -->
-    <MajorUpgrade DowngradeErrorMessage="Sul computer è già installata una versione più recente di MdiViewer." />
+    <!-- Una nuova versione sostituisce automaticamente quella installata (nello stesso ambito: per utente o per computer). -->
+    <MajorUpgrade DowngradeErrorMessage="È già installata una versione più recente di MdiViewer." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <!-- Icona in "Impostazioni > App" e collegamenti -->
@@ -25,11 +32,12 @@
     <Property Id="ARPURLINFOABOUT" Value="https://github.com/TonyRoma80/ModiImaging" />
     <Property Id="ARPURLUPDATEINFO" Value="https://github.com/TonyRoma80/ModiImaging/releases" />
 
+    <!-- In un'installazione per utente Windows Installer reindirizza ProgramFiles64Folder in %LOCALAPPDATA%\Programs. -->
     <StandardDirectory Id="ProgramFiles64Folder">
-      <Directory Id="INSTALLFOLDER" Name="MdiViewer" />
+      <Directory Id="APPLICATIONFOLDER" Name="MdiViewer" />
     </StandardDirectory>
 
-    <ComponentGroup Id="MdiViewerFiles" Directory="INSTALLFOLDER">
+    <ComponentGroup Id="MdiViewerFiles" Directory="APPLICATIONFOLDER">
       <Component Id="MainExecutable" Bitness="always64">
         <File Id="MdiViewerExe" Source="$(var.ViewerDir)MdiViewer.exe" KeyPath="yes" />
 
@@ -39,14 +47,23 @@
             <Verb Id="open" Command="Apri con MdiViewer" TargetFile="MdiViewerExe" Argument="&quot;%1&quot;" />
           </Extension>
         </ProgId>
+        <RegistryValue Root="HKMU" Key="Software\Classes\.mdi\OpenWithProgids" Name="MdiViewer.mdi" Value="" Type="string" />
 
-        <!-- Registrazione dell'applicazione per "Apri con" e per le impostazioni delle app predefinite -->
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe" Name="FriendlyAppName" Value="MdiViewer" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".mdi" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".emf" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tif" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tiff" Value="" Type="string" />
-        <RegistryValue Root="HKLM" Key="Software\Classes\.mdi\OpenWithProgids" Name="MdiViewer.mdi" Value="" Type="string" />
+        <!-- "Apri con" per gli altri formati supportati. Il comando serve anche a chi in passato ha scelto
+             "Apri con > MdiViewer.exe > Usa sempre" con un'altra copia: la sua scelta punta a questa chiave. -->
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe" Name="FriendlyAppName" Value="MdiViewer" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\shell\open\command" Value="&quot;[#MdiViewerExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".mdi" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".emf" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tif" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\MdiViewer.exe\SupportedTypes" Name=".tiff" Value="" Type="string" />
+
+        <!-- Registrazione tra le "App predefinite" di Windows (Impostazioni > App > App predefinite) -->
+        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationName" Value="MdiViewer" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationDescription" Value="Visualizzatore e convertitore di file Microsoft Document Imaging (.mdi)" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities" Name="ApplicationIcon" Value="&quot;[#MdiViewerExe]&quot;,0" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\TonyRoma\MdiViewer\Capabilities\FileAssociations" Name=".mdi" Value="MdiViewer.mdi" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\RegisteredApplications" Name="MdiViewer" Value="Software\TonyRoma\MdiViewer\Capabilities" Type="string" />
       </Component>
 
       <Component Id="LicenseFile">
@@ -60,8 +77,8 @@
         <Shortcut Id="StartMenuShortcut"
                   Name="MdiViewer"
                   Description="Visualizzatore di file Microsoft Document Imaging (.mdi)"
-                  Target="[INSTALLFOLDER]MdiViewer.exe"
-                  WorkingDirectory="INSTALLFOLDER"
+                  Target="[APPLICATIONFOLDER]MdiViewer.exe"
+                  WorkingDirectory="APPLICATIONFOLDER"
                   Icon="MdiViewer.ico" />
         <RegistryValue Root="HKCU" Key="Software\TonyRoma\MdiViewer" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
@@ -72,8 +89,13 @@
       <ComponentRef Id="StartMenuShortcut" />
     </Feature>
 
-    <!-- Interfaccia standard: benvenuto, licenza, cartella di installazione, avanzamento -->
-    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <!-- Interfaccia: benvenuto, licenza, scelta "solo per me" / "per tutti gli utenti", cartella, avanzamento -->
+    <Property Id="ApplicationFolderName" Value="MdiViewer" />
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+    <ui:WixUI Id="WixUI_Advanced" />
+    <!-- WixUI_Advanced userebbe %LOCALAPPDATA%\Apps: si usa la cartella standard di Windows %LOCALAPPDATA%\Programs. -->
+    <SetProperty Id="WixPerUserFolder" Value="[LocalAppDataFolder]Programs\[ApplicationFolderName]"
+                 After="WixSetDefaultPerUserFolder" Sequence="both" />
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 
     <!-- Al termine: casella "Avvia MdiViewer" -->

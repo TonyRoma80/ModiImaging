@@ -4,7 +4,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>ModiImaging.Drawing</RootNamespace>
-    <Description>Disegno, stampa ed esportazione (PDF vettoriale tramite Microsoft Print to PDF, PDF da immagini, PNG) di documenti MDI, EMF, WMF, TIFF multipagina e immagini. Solo Windows, nessuna libreria esterna.</Description>
+    <Description>Rendering, printing and export (vector PDF through Microsoft Print to PDF, image-based PDF, PNG) of MDI, EMF, WMF, multi-page TIFF and image documents. Windows only, no third-party libraries.</Description>
   </PropertyGroup>
 
   <ItemGroup>

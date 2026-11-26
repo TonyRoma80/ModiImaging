@@ -1,31 +1,33 @@
 # ModiImaging.Drawing
 
-Disegno, stampa ed esportazione di documenti **MDI**, EMF, WMF, TIFF multipagina, PNG, JPG e BMP
-su Windows. Si basa su `System.Drawing`, senza librerie esterne. Richiede il pacchetto `ModiImaging`.
+Rendering, printing and export of **MDI**, EMF, WMF, multi-page TIFF, PNG, JPG and BMP documents
+on Windows. Built on `System.Drawing`, with no third-party libraries. Requires the `ModiImaging` package.
 
 ```csharp
 using ModiImaging.Drawing;
 
-using var doc = Document.Load(@"C:\Archivio\documento.mdi");
+using var doc = Document.Load(@"C:\Archive\document.mdi");
 
-// PDF vettoriale tramite la stampante "Microsoft Print to PDF" di Windows
+// Vector PDF through the Windows "Microsoft Print to PDF" printer
 if (PdfExporter.IsPdfPrinterAvailable())
-    PdfExporter.ExportVector(doc, @"C:\Archivio\documento.pdf");
+    PdfExporter.ExportVector(doc, @"C:\Archive\document.pdf");
 else
-    RasterPdfWriter.Export(doc, @"C:\Archivio\documento.pdf", dpi: 200);
+    RasterPdfWriter.Export(doc, @"C:\Archive\document.pdf", dpi: 200);
 
-// Una PNG per pagina
-PngExporter.Export(doc, @"C:\Archivio\documento.png", dpi: 300);
+// One PNG per page
+PngExporter.Export(doc, @"C:\Archive\document.png", dpi: 300);
 
-// Bitmap di una pagina (ad esempio per un OCR esterno)
+// Bitmap of a page (for example for an external OCR engine)
 using Bitmap bmp = doc.Pages[0].Render(300);
 
-// Testo (solo pagine EMF/MDI)
-string testo = doc.GetText();
+// Text (EMF/MDI pages only)
+string text = doc.GetText();
 ```
 
-Per la stampa con finestra di dialogo e anteprima, `DocumentPrinter` è un `PrintDocument` che
-gestisce l'intervallo di pagine, l'orientamento automatico e l'adattamento al foglio.
+For printing with a dialog and preview, `DocumentPrinter` is a `PrintDocument` that handles the
+page range, automatic orientation and scaling to the sheet.
 
-`Converter.ConvertToPdf` e `Converter.ConvertBatch` convertono uno o più file in PDF, usando il
-PDF da immagini se *Microsoft Print to PDF* non è installata.
+`Converter.ConvertToPdf` and `Converter.ConvertBatch` convert one or more files to PDF, falling back
+to an image-based PDF when *Microsoft Print to PDF* is not installed.
+
+Source code and documentation: <https://github.com/TonyRoma80/ModiImaging>. MIT license.

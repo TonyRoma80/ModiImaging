@@ -1,27 +1,28 @@
 # ModiImaging.Ocr
 
-OCR delle pagine **MDI**, EMF, TIFF e immagini con il motore OCR integrato in **Windows 10/11**
-(`Windows.Media.Ocr`): funziona offline, senza librerie esterne e senza servizi online.
-Richiede i pacchetti `ModiImaging` e `ModiImaging.Drawing`.
+OCR for **MDI**, EMF, TIFF and image pages using the OCR engine built into **Windows 10/11**
+(`Windows.Media.Ocr`): it works offline, with no third-party libraries and no online services.
+Requires the `ModiImaging` and `ModiImaging.Drawing` packages.
 
 ```csharp
 using ModiImaging;
 using ModiImaging.Ocr;
 
-var mdi = MdiFile.Load(@"C:\Archivio\documento.mdi");
+var mdi = MdiFile.Load(@"C:\Archive\document.mdi");
 
-// Testo nativo dove c'è, OCR solo per le pagine che sembrano scansioni
-string testo = await PageOcr.GetTextAsync(mdi, TextSource.Auto, language: "it-IT");
+// Native text where available, OCR only for pages that look like scans
+string text = await PageOcr.GetTextAsync(mdi, TextSource.Auto, language: "en-US");
 
-// OCR esplicito di una pagina, con le righe e le loro coordinate in mm
-OcrPageResult r = await PageOcr.RecognizeAsync(mdi.Pages[0], "it-IT");
+// Explicit OCR of a page, with lines and their coordinates in mm
+OcrPageResult r = await PageOcr.RecognizeAsync(mdi.Pages[0], "en-US");
 foreach (var line in r.Lines) Console.WriteLine($"{line.Y:0.0} mm: {line.Text}");
 ```
 
-Funziona anche con le pagine di `ModiImaging.Drawing.Document` (TIFF, PNG, JPG...) e con qualsiasi `Bitmap`.
+It also works with the pages of `ModiImaging.Drawing.Document` (TIFF, PNG, JPG...) and with any `Bitmap`.
 
-Le lingue disponibili sono quelle installate in Windows con il componente *Riconoscimento ottico dei
-caratteri* (`PageOcr.AvailableLanguages`). Su un Windows in italiano `it-IT` è normalmente già presente.
+The available languages are those installed in Windows with the *Optical character recognition*
+component (`PageOcr.AvailableLanguages`). Pass `language: null` to use the user's profile languages.
 
-Il progetto che usa questo pacchetto deve avere un TFM Windows con versione, ad esempio
-`net8.0-windows10.0.19041.0`.
+The consuming project needs a versioned Windows TFM, for example `net8.0-windows10.0.19041.0`.
+
+Source code and documentation: <https://github.com/TonyRoma80/ModiImaging>. MIT license.

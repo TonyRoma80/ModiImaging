@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>ModiImaging</RootNamespace>
-    <Description>Lettura dei file Microsoft Document Imaging (.mdi) ed estrazione del testo, senza Office e senza dipendenze. Estrae le pagine EMF, ripulisce i record proprietari MODI e restituisce il testo con le coordinate in millimetri.</Description>
+    <Description>Reads Microsoft Document Imaging (.mdi) files and extracts their text, without Office and without dependencies. Extracts the EMF pages, cleans up proprietary MODI records and returns the text with coordinates in millimetres.</Description>
   </PropertyGroup>
 
   <ItemGroup>

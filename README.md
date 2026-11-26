@@ -1,181 +1,181 @@
-# ModiImaging e MdiViewer
+# ModiImaging and MdiViewer
 
-Strumenti per i file **Microsoft Document Imaging (.mdi)** su Windows 10/11, **senza Microsoft Office**:
+Tools for **Microsoft Document Imaging (.mdi)** files on Windows 10/11, **without Microsoft Office**:
 
-| Progetto | Tipo | Contenuto |
-|----------|------|-----------|
-| [`src/ModiImaging`](src/ModiImaging) | libreria / pacchetto NuGet, `net8.0` | lettura degli MDI ed **estrazione del testo** con coordinate; nessuna dipendenza, funziona anche fuori da Windows |
-| [`src/ModiImaging.Drawing`](src/ModiImaging.Drawing) | libreria / pacchetto NuGet, `net8.0-windows` | disegno delle pagine, stampa, PDF vettoriale e da immagini, PNG; apre anche EMF, WMF, TIFF, PNG, JPG, BMP |
-| [`src/ModiImaging.Ocr`](src/ModiImaging.Ocr) | libreria / pacchetto NuGet, `net8.0-windows10.0.19041.0` | OCR con il motore integrato in Windows (offline) |
-| [`src/MdiViewer`](src/MdiViewer) | applicazione WinForms | visualizzatore e convertitore (finestra e riga di comando) |
-| [`samples/MdiText`](samples/MdiText) | esempio console | come estrarre il testo, con OCR dove serve |
+| Project | Type | Contents |
+|---------|------|----------|
+| [`src/ModiImaging`](src/ModiImaging) | library / NuGet package, `net8.0` | reads MDI files and **extracts text** with coordinates; no dependencies, also works outside Windows |
+| [`src/ModiImaging.Drawing`](src/ModiImaging.Drawing) | library / NuGet package, `net8.0-windows` | page rendering, printing, vector and image-based PDF, PNG; also opens EMF, WMF, TIFF, PNG, JPG, BMP |
+| [`src/ModiImaging.Ocr`](src/ModiImaging.Ocr) | library / NuGet package, `net8.0-windows10.0.19041.0` | OCR with the engine built into Windows (offline) |
+| [`src/MdiViewer`](src/MdiViewer) | WinForms application | viewer and converter (GUI and command line) |
+| [`samples/MdiText`](samples/MdiText) | console sample | how to extract text, using OCR only where needed |
 
-Nessuna libreria esterna: solo .NET, `System.Drawing` e le API di Windows.
+No third-party libraries: only .NET, `System.Drawing` and Windows APIs.
 
-## Estrarre il testo da un programma C#
+## Extracting text from C#
 
-Le pagine dei `.mdi` sono metafile EMF che contengono il testo **come testo**, non come immagine: la
-lettura è esatta e istantanea e l'OCR serve solo per le pagine che sono scansioni.
+The pages of an `.mdi` file are EMF metafiles that store text **as text**, not as an image, so
+extraction is exact and instant. OCR is only needed for pages that are scans.
 
 ```csharp
 using ModiImaging;
 
-var mdi = MdiFile.Load(path);                  // UnsupportedFormatException se non leggibile
-string testo = mdi.GetText();                  // pagine separate da '\f'
+var mdi = MdiFile.Load(path);                  // UnsupportedFormatException if unreadable
+string text = mdi.GetText();                   // pages separated by '\f'
 
 foreach (var page in mdi.Pages)
 {
-    string t = page.GetText();                 // testo ricostruito per righe
-    IReadOnlyList<TextRun> runs = page.TextRuns; // frammenti con X/Y in mm, font, grassetto
-    if (page.NeedsOcr) { /* pagina in gran parte immagine */ }
+    string t = page.GetText();                 // text rebuilt line by line
+    IReadOnlyList<TextRun> runs = page.TextRuns; // fragments with X/Y in mm, font, bold
+    if (page.NeedsOcr) { /* page is mostly an image */ }
 }
 ```
 
-Con l'OCR (pacchetto `ModiImaging.Ocr`, il progetto deve avere un TFM come `net8.0-windows10.0.19041.0`):
+With OCR (package `ModiImaging.Ocr`; the consuming project needs a TFM such as `net8.0-windows10.0.19041.0`):
 
 ```csharp
 using ModiImaging.Ocr;
 
-string testo = await PageOcr.GetTextAsync(mdi, TextSource.Auto, "it-IT"); // OCR solo dove serve
+string text = await PageOcr.GetTextAsync(mdi, TextSource.Auto, "en-US"); // OCR only where needed
 ```
 
-Per capire se un file è un MDI senza caricarlo: `MdiFile.IsMdiFile(path)` (legge 4 byte).
+To check whether a file is an MDI without loading it: `MdiFile.IsMdiFile(path)` (reads 4 bytes).
 
-**Ricostruzione delle righe.** `GetText()` raggruppa i frammenti per linea di base e li ordina da
-sinistra a destra. Le distanze orizzontali grandi diventano tabulazioni. Nelle pagine a più colonne
-le righe affiancate finiscono sulla stessa riga di testo: chi ha bisogno di un layout più preciso
-può lavorare direttamente su `TextRuns`, che hanno coordinate e dimensioni.
+**Line reconstruction.** `GetText()` groups fragments by baseline and sorts them left to right.
+Large horizontal gaps become tabs. On multi-column pages, side-by-side lines end up on the same
+text line; if you need a more precise layout, work directly with `TextRuns`, which carry
+coordinates and sizes.
 
-## Installazione
+## Installation
 
-Le librerie sono pacchetti NuGet:
+The libraries are NuGet packages:
 
 ```
 dotnet add package ModiImaging
-dotnet add package ModiImaging.Drawing   # rendering, stampa, PDF, PNG (Windows)
+dotnet add package ModiImaging.Drawing   # rendering, printing, PDF, PNG (Windows)
 dotnet add package ModiImaging.Ocr       # OCR (Windows 10/11)
 ```
 
-Il visualizzatore **MdiViewer** si scarica già compilato dalla pagina
-[Releases](https://github.com/TonyRoma80/ModiImaging/releases), in due forme (nessuna richiede .NET):
+The **MdiViewer** application can be downloaded ready to use from the
+[Releases](https://github.com/TonyRoma80/ModiImaging/releases) page, in two forms (neither needs .NET).
+Its user interface is in Italian.
 
-- **`MdiViewer-<versione>-x64.msi`** (consigliato): durante l'installazione si sceglie
-  - *solo per me* (predefinito): nessun permesso di amministratore, il programma va in
-    `%LOCALAPPDATA%\Programs\MdiViewer` ed è visibile solo all'utente che lo installa;
-  - *per tutti gli utenti*: richiede i permessi di amministratore, il programma va in
-    `C:\Program Files\MdiViewer`.
+- **`MdiViewer-<version>-x64.msi`** (recommended): during setup you choose
+  - *just for me* (default): no administrator rights needed; the program goes to
+    `%LOCALAPPDATA%\Programs\MdiViewer` and is only visible to the user who installs it;
+  - *for all users*: requires administrator rights; the program goes to `C:\Program Files\MdiViewer`.
 
-  In entrambi i casi aggiunge il collegamento nel menu Start, associa i file `.mdi` (doppio clic)
-  e si disinstalla da *Impostazioni → App*.
-  Le versioni nuove sostituiscono automaticamente quella installata nello stesso modo.
-- **`MdiViewer.exe`** portatile: un unico file da copiare ed eseguire dove si vuole, senza installazione.
+  Either way it adds a Start menu shortcut, associates `.mdi` files (double-click to open) and can be
+  removed from *Settings → Apps*. Newer versions automatically replace the installed one.
+- **`MdiViewer.exe`** (portable): a single file you can copy and run anywhere, no installation.
 
-Se sul PC un altro programma apre già i `.mdi`, Windows non permette a nessun installer di
-sostituirlo: la scelta spetta all'utente (clic destro su un file `.mdi` → *Apri con* → *MdiViewer*
-→ *Usa sempre*).
+If another program already opens `.mdi` files on the PC, Windows does not allow any installer to
+replace it: the user has to choose (right-click an `.mdi` file → *Open with* → *MdiViewer* →
+*Always*).
 
-Installazione senza finestre (ad esempio da script):
-`msiexec /i MdiViewer-<versione>-x64.msi /qn MSIINSTALLPERUSER=1 ALLUSERS=2` (solo per l'utente) oppure
-`msiexec /i MdiViewer-<versione>-x64.msi /qn ALLUSERS=1` (per tutti, da amministratore).
+Unattended installation (e.g. from a script):
+`msiexec /i MdiViewer-<version>-x64.msi /qn MSIINSTALLPERUSER=1 ALLUSERS=2` (current user only) or
+`msiexec /i MdiViewer-<version>-x64.msi /qn ALLUSERS=1` (all users, as administrator).
 
-Il programma non è firmato digitalmente: al primo avvio Windows SmartScreen può mostrare
-"Windows ha protetto il PC". Per proseguire: *Ulteriori informazioni* → *Esegui comunque*.
+The program is not digitally signed: on first run Windows SmartScreen may show
+"Windows protected your PC". To continue: *More info* → *Run anyway*.
 
-## Creare i pacchetti
+## Building the packages
 
 ```
 dotnet pack ModiImaging.sln -c Release
 ```
 
-crea in `artifacts\packages` i file `ModiImaging.*.nupkg` (più i `.snupkg` con i simboli per il debug).
-Per provarli in un altro progetto prima di pubblicarli, indicare quella cartella come origine NuGet
-in un `nuget.config` accanto alla soluzione che li usa:
+creates the `ModiImaging.*.nupkg` files in `artifacts\packages` (plus `.snupkg` files with debug symbols).
+To try them in another project before publishing, add that folder as a NuGet source in a
+`nuget.config` next to the consuming solution:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
-    <add key="ModiImaging-locale" value="C:\percorso\di\ModiImaging\artifacts\packages" />
+    <add key="ModiImaging-local" value="C:\path\to\ModiImaging\artifacts\packages" />
   </packageSources>
 </configuration>
 ```
 
-La versione è in [Directory.Build.props](Directory.Build.props): **aumentarla a ogni modifica**,
-perché NuGet tiene in cache i pacchetti per numero di versione e non rilegge un pacchetto con
-una versione già scaricata (in alternativa: `dotnet nuget locals global-packages --clear`).
-Pubblicazione: `dotnet nuget push artifacts\packages\*.nupkg --api-key <chiave> --source https://api.nuget.org/v3/index.json`.
+The version is set in [Directory.Build.props](Directory.Build.props): **bump it on every change**,
+because NuGet caches packages by version number and will not reload a version it has already
+downloaded (alternatively: `dotnet nuget locals global-packages --clear`).
+Publishing: `dotnet nuget push artifacts\packages\*.nupkg --api-key <key> --source https://api.nuget.org/v3/index.json`.
 
 ## MdiViewer
 
-**Visualizzatore**: pagina centrata con ombra su sfondo grigio; zoom con i pulsanti, la casella
-della percentuale, `Ctrl`+rotellina o `Ctrl`+`+`/`-` (`Ctrl+1` 100%, `Ctrl+2` adatta alla larghezza,
-`Ctrl+0` adatta alla pagina); spostamento trascinando con il mouse; pagine con `PagSu`/`PagGiù`,
-`Ctrl+Home`/`Ctrl+Fine`, `Ctrl+G`; apertura trascinando il file sulla finestra o da riga di comando.
+**Viewer**: page centred with a drop shadow on a grey background; zoom with the toolbar buttons, the
+percentage box, `Ctrl`+mouse wheel or `Ctrl`+`+`/`-` (`Ctrl+1` 100%, `Ctrl+2` fit width, `Ctrl+0`
+fit page); pan by dragging with the mouse; pages with `PgUp`/`PgDn`, `Ctrl+Home`/`Ctrl+End`,
+`Ctrl+G`; open files by dropping them on the window or from the command line.
 
-**Stampa** (`Ctrl+P`, anteprima `Ctrl+Maiusc+P`): scelta della stampante e dell'intervallo (tutte,
-da-a, pagina corrente), orientamento automatico, pagina adattata al foglio.
+**Printing** (`Ctrl+P`, preview `Ctrl+Shift+P`): printer and page range selection (all, from–to,
+current page), automatic orientation, page scaled to fit the sheet.
 
-**Esportazione** (menu File): PDF vettoriale (`Ctrl+E`) tramite *Microsoft Print to PDF* con il formato
-carta dell'originale; PDF da immagini a 200 dpi se quella stampante manca; PNG una per pagina;
-testo (`.txt` UTF-8) e copia del testo della pagina (`Ctrl+Maiusc+C`); conversione di una cartella.
+**Export** (*File* menu): vector PDF (`Ctrl+E`) through *Microsoft Print to PDF* using the original
+paper size; image-based PDF at 200 dpi if that printer is missing; PNG, one per page; text
+(UTF-8 `.txt`) and copy of the page text (`Ctrl+Shift+C`); whole-folder conversion.
 
-### Riga di comando
+### Command line
 
 ```
-MdiViewer.exe [file]                                   apre il visualizzatore
-MdiViewer.exe file.mdi file.pdf [--raster]             converte in PDF
-MdiViewer.exe --convert <file o cartella> [--raster] [--recursive]
-MdiViewer.exe --text <file> [file.txt]                 estrae il testo (a video o in un file)
-MdiViewer.exe --text <cartella> [--recursive]          un .txt accanto a ogni .mdi
+MdiViewer.exe [file]                                   opens the viewer
+MdiViewer.exe file.mdi file.pdf [--raster]             converts to PDF
+MdiViewer.exe --convert <file or folder> [--raster] [--recursive]
+MdiViewer.exe --text <file> [file.txt]                 extracts the text (to the console or a file)
+MdiViewer.exe --text <folder> [--recursive]            a .txt next to every .mdi
 ```
 
-`--convert` salva ogni PDF accanto all'originale (sovrascrivendo quelli esistenti); `--raster` produce
-il PDF da immagini (automatico se *Microsoft Print to PDF* manca). Codici di uscita: `0` ok, `1`
-almeno un errore, `2` argomenti non validi. MdiViewer è un'applicazione grafica: negli script usare
+`--convert` saves each PDF next to the original (overwriting existing ones); `--raster` produces an
+image-based PDF (used automatically when *Microsoft Print to PDF* is missing). Exit codes: `0` success,
+`1` at least one error, `2` invalid arguments. MdiViewer is a GUI application: in batch scripts use
 `start "" /wait MdiViewer.exe ...`, in PowerShell `Start-Process ... -Wait`.
 
-## Formato MDI
+## The MDI format
 
-Il formato non è documentato da Microsoft. Quello che la libreria assume:
+Microsoft never documented the format. What the library relies on:
 
-- i file iniziano con i 4 byte `EP*\0` (`45 50 2A 00`);
-- contengono uno o più stream zlib (nei file esaminati il primo parte all'offset `0x24`);
-- ogni stream decompresso è una pagina **EMF**: record `EMR_HEADER` (tipo 1), firma `" EMF"`
-  all'offset 40, dimensione totale `nBytes` all'offset 48;
-- la dimensione della pagina è `rclFrame` (offset 24-39, centesimi di millimetro).
+- files start with the 4 bytes `EP*\0` (`45 50 2A 00`);
+- they contain one or more zlib streams (in the files examined the first one starts at offset `0x24`);
+- each decompressed stream is an **EMF** page: an `EMR_HEADER` record (type 1), the `" EMF"` signature
+  at offset 40, the total size `nBytes` at offset 48;
+- the page size is `rclFrame` (offsets 24–39, in hundredths of a millimetre).
 
-[MdiFile.cs](src/ModiImaging/MdiFile.cs) scorre il file cercando intestazioni zlib valide (`0x78` + FLG
-con `(CMF*256+FLG) % 31 == 0`), decomprime 88 byte per verificare l'header EMF e poi l'intera pagina.
+[MdiFile.cs](src/ModiImaging/MdiFile.cs) scans the file for valid zlib headers (`0x78` + FLG with
+`(CMF*256+FLG) % 31 == 0`), inflates 88 bytes to check the EMF header and then inflates the whole page.
 
-**Immagini con compressione proprietaria.** MODI può inserire nell'EMF un record non standard (tipo
-123, dimensione non multipla di 4) che avvolge un record EMF originale compresso, di solito un
-`EMR_STRETCHDIBITS` (una bitmap, ad esempio il logo di una banca in una pagina web stampata):
+**Images with proprietary compression.** MODI may insert a non-standard record into the EMF (type
+123, size not a multiple of 4) that wraps a compressed original EMF record, usually an
+`EMR_STRETCHDIBITS` (a bitmap, for example a bank logo on a printed web page):
 
-| Offset | Contenuto |
-|--------|-----------|
-| 8 | tipo del record originale (81 = `EMR_STRETCHDIBITS`) |
-| 12 | tipo di compressione |
-| 16 / 20 | offset / lunghezza dell'intestazione originale non compressa (80 byte) |
-| 24 / 28 | offset / lunghezza dei dati compressi (iniziano con `PTC+MSHM`) |
+| Offset | Contents |
+|--------|----------|
+| 8 | type of the original record (81 = `EMR_STRETCHDIBITS`) |
+| 12 | compression type |
+| 16 / 20 | offset / length of the uncompressed original header (80 bytes) |
+| 24 / 28 | offset / length of the compressed data (starts with `PTC+MSHM`) |
 
-GDI+ rifiuta l'intero EMF se trova questo record: [EmfSanitizer.cs](src/ModiImaging/Emf/EmfSanitizer.cs)
-ricostruisce il record originale se i dati sono zlib/deflate, altrimenti sostituisce la bitmap con un
-**riquadro grigio** delle stesse dimensioni. Il testo non è interessato. Il visualizzatore lo segnala
-nella barra di stato, la riga di comando con "ATTENZIONE: ...", la libreria con `EmfPage.UnsupportedImages`.
+GDI+ rejects the whole EMF when it meets this record. [EmfSanitizer.cs](src/ModiImaging/Emf/EmfSanitizer.cs)
+rebuilds the original record if the data is zlib/deflate; otherwise it replaces the bitmap with a
+**grey box** of the same size. Text is not affected. The viewer reports it in the status bar, the
+command line with a warning, and the library through `EmfPage.UnsupportedImages`.
 
-**Testo.** [EmfTextExtractor.cs](src/ModiImaging/Emf/EmfTextExtractor.cs) legge `EMR_EXTTEXTOUTW`,
-`EMR_EXTTEXTOUTA` e `EMR_SMALLTEXTOUT` e converte le coordinate logiche in millimetri ricostruendo
-map mode, window/viewport, world transform, `SaveDC`/`RestoreDC`, font e allineamento. Il testo scritto
-come indici di glifo (`ETO_GLYPH_INDEX`) non è decodificabile senza il font: viene contato in
-`UndecodableTextRuns` e fa scattare `NeedsOcr`.
+**Text.** [EmfTextExtractor.cs](src/ModiImaging/Emf/EmfTextExtractor.cs) reads `EMR_EXTTEXTOUTW`,
+`EMR_EXTTEXTOUTA` and `EMR_SMALLTEXTOUT` and converts logical coordinates to millimetres by tracking
+map mode, window/viewport, world transform, `SaveDC`/`RestoreDC`, font and text alignment. Text written
+as glyph indices (`ETO_GLYPH_INDEX`) cannot be decoded without the font: it is counted in
+`UndecodableTextRuns` and sets `NeedsOcr`.
 
-I `.mdi` che non contengono alcun EMF non sono supportati (`UnsupportedFormatException`).
+`.mdi` files that contain no EMF at all (scanner output with proprietary compression only) are not
+supported (`UnsupportedFormatException`).
 
-Progetto indipendente, non affiliato né approvato da Microsoft. Licenza [MIT](LICENSE).
+Independent project, not affiliated with or endorsed by Microsoft. [MIT](LICENSE) license.
 
-## Compilazione
+## Building
 
-Serve l'SDK di **.NET 8** o successivo: <https://dotnet.microsoft.com/download/dotnet/8.0>.
+Requires the **.NET 8** SDK or later: <https://dotnet.microsoft.com/download/dotnet/8.0>.
 
 ```
 git clone https://github.com/TonyRoma80/ModiImaging.git
@@ -183,35 +183,35 @@ cd ModiImaging
 dotnet build ModiImaging.sln -c Release
 ```
 
-### MdiViewer in un singolo .exe
+### MdiViewer as a single .exe
 
-Autonomo (consigliato, circa 63 MB, include .NET, gira su qualsiasi Windows 10/11 a 64 bit):
+Self-contained (recommended, about 63 MB, includes .NET, runs on any 64-bit Windows 10/11):
 
 ```
 dotnet publish src\MdiViewer\MdiViewer.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 ```
 
-Si distribuisce solo `publish\MdiViewer.exe` (i `.pdb` e `.xml` accanto non servono).
+Only `publish\MdiViewer.exe` needs to be distributed (the `.pdb` and `.xml` files next to it are not needed).
+Framework-dependent (about 250 KB, requires the *.NET Desktop Runtime 8*): same command with
+`--self-contained false` and without `-p:EnableCompressionInSingleFile=true`. For Windows on ARM: `win-arm64`.
 
-### Installer MSI
+### MSI installer
 
 ```
 dotnet build installer\MdiViewer.Installer.wixproj -c Release
 ```
 
-Compila MdiViewer come exe autonomo e lo impacchetta con [WiX Toolset](https://wixtoolset.org) 5
-(scaricato automaticamente da NuGet durante la compilazione) in
-`installer\bin\Release\MdiViewer-<versione>-x64.msi`, con interfaccia in italiano.
-La versione è quella di [Directory.Build.props](Directory.Build.props). L'`UpgradeCode` in
-[Package.wxs](installer/Package.wxs) non va mai cambiato: serve a Windows per riconoscere gli aggiornamenti.
-Dipendente dal framework (circa 250 KB, richiede il *.NET Desktop Runtime 8*): stesso comando con
-`--self-contained false` e senza `-p:EnableCompressionInSingleFile=true`. Per Windows su ARM: `win-arm64`.
+Builds MdiViewer as a self-contained exe and packages it with [WiX Toolset](https://wixtoolset.org) 5
+(downloaded automatically from NuGet during the build) into
+`installer\bin\Release\MdiViewer-<version>-x64.msi`, with an Italian user interface.
+The version comes from [Directory.Build.props](Directory.Build.props). Never change the `UpgradeCode` in
+[Package.wxs](installer/Package.wxs): Windows uses it to recognise upgrades.
 
-## Requisiti sul PC di destinazione
+## Requirements on the target PC
 
-- Windows 10 o 11. Microsoft Office **non** serve.
-- PDF vettoriale: stampante *Microsoft Print to PDF* (di serie; si reinstalla da *Attiva o disattiva
-  funzionalità di Windows*). Senza, si usa il PDF da immagini.
-- Stampa e anteprima: almeno una stampante installata (va bene quella PDF).
-- OCR: la lingua desiderata installata in Windows con il componente *Riconoscimento ottico dei
-  caratteri* (`PageOcr.AvailableLanguages`); su Windows in italiano `it-IT` di solito c'è già.
+- Windows 10 or 11. Microsoft Office is **not** required.
+- Vector PDF: the *Microsoft Print to PDF* printer (built in; it can be reinstalled from *Turn Windows
+  features on or off*). Without it, an image-based PDF is produced.
+- Printing and preview: at least one installed printer (the PDF printer is fine).
+- OCR: the desired language installed in Windows with the *Optical character recognition* component
+  (`PageOcr.AvailableLanguages`).

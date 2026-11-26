@@ -6,7 +6,7 @@
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>ModiImaging.Ocr</RootNamespace>
-    <Description>OCR delle pagine MDI/EMF/TIFF/immagini con il motore OCR integrato in Windows 10/11 (Windows.Media.Ocr). Nessuna libreria esterna e nessun servizio online.</Description>
+    <Description>OCR for MDI/EMF/TIFF/image pages using the OCR engine built into Windows 10/11 (Windows.Media.Ocr). No third-party libraries and no online services.</Description>
   </PropertyGroup>
 
   <ItemGroup>
